@@ -1,0 +1,16 @@
+# Claude Code
+.claude/
+review-go-*.md
+
+# Environment
+.env
+
+# Build output
+/backend
+*.exe
+
+# Go
+vendor/
+
+# Swagger (auto-generated)
+docs/
