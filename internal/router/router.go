@@ -20,8 +20,16 @@ func New() *gin.Engine {
 	userSvc := service.NewUserService(userRepo)
 	authSvc := service.NewAuthService(userRepo)
 
+	todoRepo := repository.NewTodoRepository()
+	todoSvc := service.NewTodoService(todoRepo)
+
+	categoryRepo := repository.NewCategoryRepository()
+	categorySvc := service.NewCategoryService(categoryRepo)
+
 	authH := handler.NewAuthHandler(authSvc, userSvc)
 	userH := handler.NewUserHandler(userSvc)
+	todoH := handler.NewTodoHandler(todoSvc)
+	categoryH := handler.NewCategoryHandler(categorySvc)
 
 	v1 := r.Group("/api/v1")
 
@@ -40,6 +48,19 @@ func New() *gin.Engine {
 		authorized.GET("/users/me", userH.GetMe)
 		authorized.PUT("/users/me", userH.UpdateMe)
 		authorized.DELETE("/users/me", userH.DeleteMe)
+
+		authorized.GET("/todos", todoH.List)
+		authorized.POST("/todos", todoH.Create)
+		authorized.GET("/todos/:id", todoH.GetByID)
+		authorized.PUT("/todos/:id", todoH.Update)
+		authorized.PATCH("/todos/:id/status", todoH.UpdateStatus)
+		authorized.DELETE("/todos/:id", todoH.Delete)
+
+		authorized.GET("/categories", categoryH.List)
+		authorized.POST("/categories", categoryH.Create)
+		authorized.GET("/categories/:id", categoryH.GetByID)
+		authorized.PUT("/categories/:id", categoryH.Update)
+		authorized.DELETE("/categories/:id", categoryH.Delete)
 	}
 
 	return r

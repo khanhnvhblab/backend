@@ -1,0 +1,800 @@
+basePath: /api/v1
+definitions:
+  handler.categoryListResp:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Category'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  handler.categoryResp:
+    properties:
+      data:
+        $ref: '#/definitions/model.Category'
+    type: object
+  handler.errResp:
+    properties:
+      error:
+        type: string
+    type: object
+  handler.loginResp:
+    properties:
+      data:
+        $ref: '#/definitions/service.LoginResponse'
+    type: object
+  handler.refreshResp:
+    properties:
+      data:
+        $ref: '#/definitions/service.RefreshResponse'
+    type: object
+  handler.registerData:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  handler.registerResp:
+    properties:
+      data:
+        $ref: '#/definitions/handler.registerData'
+    type: object
+  handler.todoListResp:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Todo'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  handler.todoResp:
+    properties:
+      data:
+        $ref: '#/definitions/model.Todo'
+    type: object
+  handler.userResp:
+    properties:
+      data:
+        $ref: '#/definitions/model.User'
+    type: object
+  model.Category:
+    properties:
+      color:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.CreateCategoryRequest:
+    properties:
+      color:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  model.CreateTodoRequest:
+    properties:
+      category_id:
+        type: string
+      deadline:
+        type: string
+      description:
+        type: string
+      priority:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  model.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  model.Todo:
+    properties:
+      category_id:
+        type: string
+      completed_at:
+        type: string
+      created_at:
+        type: string
+      deadline:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      priority:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.UpdateCategoryRequest:
+    properties:
+      color:
+        type: string
+      name:
+        type: string
+    type: object
+  model.UpdateTodoRequest:
+    properties:
+      category_id:
+        type: string
+      deadline:
+        type: string
+      description:
+        type: string
+      priority:
+        type: string
+      title:
+        type: string
+    type: object
+  model.UpdateTodoStatusRequest:
+    properties:
+      status:
+        type: string
+    required:
+    - status
+    type: object
+  model.UpdateUserRequest:
+    properties:
+      name:
+        minLength: 1
+        type: string
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  service.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  service.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  service.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  service.RefreshResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for TodoList — manage todos, categories, and user accounts.
+  title: TodoList API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate with email and password. Returns access and refresh
+        tokens.
+      parameters:
+      - description: Login credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.loginResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      summary: Login
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Invalidate the current session. Requires a valid access token.
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Logout
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Exchange a valid refresh token for a new access token.
+      parameters:
+      - description: Refresh token
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/service.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.refreshResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with email, password, and name.
+      parameters:
+      - description: Registration payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.registerResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      summary: Register a new account
+      tags:
+      - auth
+  /categories:
+    get:
+      description: Return all categories for the authenticated user.
+      parameters:
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 20, max 100)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.categoryListResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: List categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: 'Create a new category. Color defaults to #6366f1 if not provided.'
+      parameters:
+      - description: Category payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.categoryResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Create a category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      description: Permanently delete a category.
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Delete a category
+      tags:
+      - categories
+    get:
+      description: Return a single category by ID.
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.categoryResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Get a category
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: Update a category's name or color.
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.categoryResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Update a category
+      tags:
+      - categories
+  /todos:
+    get:
+      description: Return paginated list of todos for the authenticated user.
+      parameters:
+      - description: pending | in_progress | done
+        in: query
+        name: status
+        type: string
+      - description: low | medium | high
+        in: query
+        name: priority
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: string
+      - description: Search in title (case-insensitive)
+        in: query
+        name: search
+        type: string
+      - description: created_at | deadline
+        in: query
+        name: sort_by
+        type: string
+      - description: asc | desc
+        in: query
+        name: order
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 20, max 100)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.todoListResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: List todos
+      tags:
+      - todos
+    post:
+      consumes:
+      - application/json
+      description: Create a new todo for the authenticated user.
+      parameters:
+      - description: Todo payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateTodoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.todoResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Create a todo
+      tags:
+      - todos
+  /todos/{id}:
+    delete:
+      description: Permanently delete a todo.
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Delete a todo
+      tags:
+      - todos
+    get:
+      description: Return a single todo by ID.
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.todoResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Get a todo
+      tags:
+      - todos
+    put:
+      consumes:
+      - application/json
+      description: Update a todo's fields (title, description, priority, category,
+        deadline).
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateTodoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.todoResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Update a todo
+      tags:
+      - todos
+  /todos/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Update only the status of a todo. Sets completed_at when status
+        becomes done.
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New status
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateTodoStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.todoResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Update todo status
+      tags:
+      - todos
+  /users/me:
+    delete:
+      description: Permanently delete the authenticated user's account.
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Delete current user account
+      tags:
+      - users
+    get:
+      description: Return the profile of the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.userResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update the name of the authenticated user.
+      parameters:
+      - description: Fields to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.userResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Update current user profile
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    description: 'Enter: Bearer {access_token}'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -32,3 +32,25 @@ type refreshResp struct {
 type errResp struct {
 	Error string `json:"error"`
 }
+
+type todoResp struct {
+	Data model.Todo `json:"data"`
+}
+
+type todoListResp struct {
+	Data  []model.Todo `json:"data"`
+	Total int64        `json:"total"`
+	Page  int          `json:"page"`
+	Limit int          `json:"limit"`
+}
+
+type categoryResp struct {
+	Data model.Category `json:"data"`
+}
+
+type categoryListResp struct {
+	Data  []model.Category `json:"data"`
+	Total int64            `json:"total"`
+	Page  int              `json:"page"`
+	Limit int              `json:"limit"`
+}

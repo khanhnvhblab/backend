@@ -12,5 +12,3 @@ review-go-*.md
 # Go
 vendor/
 
-# Swagger (auto-generated)
-docs/
