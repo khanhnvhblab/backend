@@ -54,3 +54,7 @@ type categoryListResp struct {
 	Page  int              `json:"page"`
 	Limit int              `json:"limit"`
 }
+
+type dashboardStatsResp struct {
+	Data model.DashboardStats `json:"data"`
+}

@@ -18,6 +18,11 @@ definitions:
       data:
         $ref: '#/definitions/model.Category'
     type: object
+  handler.dashboardStatsResp:
+    properties:
+      data:
+        $ref: '#/definitions/model.DashboardStats'
+    type: object
   handler.errResp:
     properties:
       error:
@@ -120,6 +125,21 @@ definitions:
     - email
     - name
     - password
+    type: object
+  model.DashboardStats:
+    properties:
+      done:
+        type: integer
+      due_soon:
+        type: integer
+      in_progress:
+        type: integer
+      overdue:
+        type: integer
+      pending:
+        type: integer
+      total:
+        type: integer
     type: object
   model.Todo:
     properties:
@@ -492,6 +512,26 @@ paths:
       summary: Update a category
       tags:
       - categories
+  /dashboard/stats:
+    get:
+      description: Return todo counts by status, overdue and due-soon for the authenticated
+        user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.dashboardStatsResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.errResp'
+      security:
+      - BearerAuth: []
+      summary: Get dashboard stats
+      tags:
+      - dashboard
   /todos:
     get:
       description: Return paginated list of todos for the authenticated user.

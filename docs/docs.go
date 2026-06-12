@@ -424,6 +424,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/dashboard/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Return todo counts by status, overdue and due-soon for the authenticated user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dashboard"
+                ],
+                "summary": "Get dashboard stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.dashboardStatsResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errResp"
+                        }
+                    }
+                }
+            }
+        },
         "/todos": {
             "get": {
                 "security": [
@@ -921,6 +952,14 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.dashboardStatsResp": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.DashboardStats"
+                }
+            }
+        },
         "handler.errResp": {
             "type": "object",
             "properties": {
@@ -1077,6 +1116,29 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 8
+                }
+            }
+        },
+        "model.DashboardStats": {
+            "type": "object",
+            "properties": {
+                "done": {
+                    "type": "integer"
+                },
+                "due_soon": {
+                    "type": "integer"
+                },
+                "in_progress": {
+                    "type": "integer"
+                },
+                "overdue": {
+                    "type": "integer"
+                },
+                "pending": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

@@ -14,6 +14,11 @@ import (
 func New() *gin.Engine {
 	r := gin.Default()
 
+	r.Use(middleware.CORS([]string{
+		"http://localhost:3000",
+		"http://localhost:3001",
+	}))
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	userRepo := repository.NewUserRepository()
@@ -26,10 +31,14 @@ func New() *gin.Engine {
 	categoryRepo := repository.NewCategoryRepository()
 	categorySvc := service.NewCategoryService(categoryRepo)
 
+	dashboardRepo := repository.NewDashboardRepository()
+	dashboardSvc := service.NewDashboardService(dashboardRepo)
+
 	authH := handler.NewAuthHandler(authSvc, userSvc)
 	userH := handler.NewUserHandler(userSvc)
 	todoH := handler.NewTodoHandler(todoSvc)
 	categoryH := handler.NewCategoryHandler(categorySvc)
+	dashboardH := handler.NewDashboardHandler(dashboardSvc)
 
 	v1 := r.Group("/api/v1")
 
@@ -61,6 +70,8 @@ func New() *gin.Engine {
 		authorized.GET("/categories/:id", categoryH.GetByID)
 		authorized.PUT("/categories/:id", categoryH.Update)
 		authorized.DELETE("/categories/:id", categoryH.Delete)
+
+		authorized.GET("/dashboard/stats", dashboardH.GetStats)
 	}
 
 	return r
